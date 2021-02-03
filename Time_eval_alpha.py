@@ -128,7 +128,7 @@ def main():
             input = TorchTensor(imag_high[j])
             input = input.unsqueeze(0).unsqueeze(0)  # CNN expect (batch,
             # channel, len_trace) shape input
-            low_pred = model(input)  # after forward prorogation output tensor
+            low_pred = model(input)  # after forward propagation output tensor
             imag_low_pred[j] = low_pred.squeeze(0).detach().cpu().numpy()  # convert to 1d array
 
         # transpose and make the horizontal is receiver, vertical is time
@@ -143,7 +143,7 @@ def main():
         max_v = np.percentile(imag_high, 99)
         min_v = np.percentile(imag_high, 1)
         norm = colors.Normalize(vmin=min_v, vmax=max_v, clip=True)
-        axes[0].imshow(imag_high, aspect='auto', norm=norm, cmap='Greys')
+        axes[0].imshow(imag_high, aspect='auto', norm=norm, cmap='seismic')
         axes[0].set_title('10-50Hz')
         axes[0].set_xlabel('receiver')
         axes[0].set_ylabel('time')
@@ -151,16 +151,16 @@ def main():
         # vmax = np.max(imag_low)
         max_v = np.percentile(np.abs(imag_low), 99)
         norm = colors.Normalize(vmin=-max_v, vmax=max_v, clip=True)
-        axes[1].imshow(imag_low, aspect='auto', norm=norm, cmap='Greys')
+        axes[1].imshow(imag_low, aspect='auto', norm=norm, cmap='seismic')
         axes[1].set_title('BWE')
         max_v = np.percentile(np.abs(imag_low_pred), 99)
         norm = colors.Normalize(vmin=-max_v, vmax=max_v, clip=True)
-        axes[2].imshow(imag_low_pred, aspect='auto', norm=norm, cmap='Greys')
+        axes[2].imshow(imag_low_pred, aspect='auto', norm=norm, cmap='seismic')
         axes[2].set_title('Pred BWE')
         imag_residual = np.abs(imag_low_pred - imag_low)
         max_v = np.percentile(imag_residual, 99)
         norm = colors.Normalize(vmin=0.0, vmax=max_v, clip=True)
-        axes[3].imshow(imag_residual, aspect='auto', norm=norm, cmap='Greys')
+        axes[3].imshow(imag_residual, aspect='auto', norm=norm, cmap='seismic')
         axes[3].set_title('Residual')
         title = 'Shot_' + str(num_shot)
         fig.suptitle(title, verticalalignment='center')
@@ -168,7 +168,7 @@ def main():
         plt.close(fig)
         plt.cla()
 
-    n = 5  # !!! configure how many traces test results you want to show
+    n = 3  # !!! configure how many traces test results you want to show
     for i in range(n):
         # test on the trace
         num_trace = random.Random(1997 + i).randint(1, data_test.shape[0] + 1)
@@ -274,12 +274,12 @@ def main():
 
         sig_predicted_fft = fftpack.fft(predicted_low_frequency_signal)
 
-        # FFT only extract the 1-40 Hz frequency components
+        # FFT only extract the 0-300 Mhz frequency components
 
-        sample_freq = fftpack.fftfreq(sig_true_fft.size, d=time_step)[pm.freq_range_1_40[0]:pm.freq_range_1_40[1]]
-        sig_input_fft = sig_input_fft[pm.freq_range_1_40[0]:pm.freq_range_1_40[1]]
-        sig_predicted_fft = sig_predicted_fft[pm.freq_range_1_40[0]:pm.freq_range_1_40[1]]
-        sig_true_fft = sig_true_fft[pm.freq_range_1_40[0]:pm.freq_range_1_40[1]]
+        sample_freq = fftpack.fftfreq(sig_true_fft.size, d=time_step)[pm.freq_range[0]:pm.freq_range[1]]
+        sig_input_fft = sig_input_fft[pm.freq_range[0]:pm.freq_range[1]]
+        sig_predicted_fft = sig_predicted_fft[pm.freq_range[0]:pm.freq_range[1]]
+        sig_true_fft = sig_true_fft[pm.freq_range[0]:pm.freq_range[1]]
         # Complex value to Real and Imaginary Part
         complex_sig_input_fft_trace = []
         complex_sig_predicted_fft_trace = []
@@ -318,9 +318,9 @@ def main():
                      label='Predicted Signal')  # plot the line of predicted results
             title = 'Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index) + '_Phase'
             # calculate normalized phase ABS for each traces ONLY calculate 1-10Hz errors from 1-40Hz
-            abs_error = abs(predicted_phase[pm.freq_range_1_10[0]:pm.freq_range_1_10[1]] - sig_true_phase[pm.freq_range_1_10[0]:pm.freq_range_1_10[1]])
-            abs_error_pluspi = abs(predicted_phase[pm.freq_range_1_10[0]:pm.freq_range_1_10[1]] - sig_true_phase[pm.freq_range_1_10[0]:pm.freq_range_1_10[1]] + np.pi)
-            abs_error_minuspi = abs(predicted_phase[pm.freq_range_1_10[0]:pm.freq_range_1_10[1]] - sig_true_phase[pm.freq_range_1_10[0]:pm.freq_range_1_10[1]] - np.pi)
+            abs_error = abs(predicted_phase[pm.freq_range_pre[0]:pm.freq_range_pre[1]] - sig_true_phase[pm.freq_range_pre[0]:pm.freq_range_pre[1]])
+            abs_error_pluspi = abs(predicted_phase[pm.freq_range_pre[0]:pm.freq_range_pre[1]] - sig_true_phase[pm.freq_range_pre[0]:pm.freq_range_pre[1]] + np.pi)
+            abs_error_minuspi = abs(predicted_phase[pm.freq_range_pre[0]:pm.freq_range_pre[1]] - sig_true_phase[pm.freq_range_pre[0]:pm.freq_range_pre[1]] - np.pi)
             error_buffer = np.concatenate((abs_error, abs_error_pluspi, abs_error_minuspi), axis=0)
             error_buffer = error_buffer.reshape(3, abs_error.shape[0])
             error_bars = error_buffer.min(axis=0)
@@ -362,12 +362,12 @@ def main():
             plt.cla()
 
     # record 3Hz, and 5Hz ground truth and prediction results as image
-    img_3hz_gt = []
-    img_5hz_gt = []
-    img_7hz_gt = []
-    img_3hz_predict = []
-    img_5hz_predict = []
-    img_7hz_predict = []
+    img_10mhz_gt = []
+    img_30mhz_gt = []
+    img_50mhz_gt = []
+    img_10mhz_predict = []
+    img_30mhz_predict = []
+    img_50mhz_predict = []
 
     # calculate all Mean Absolute Errors for whole test dataset, create list to record
     data_traces = np.array(data_traces)
@@ -426,13 +426,13 @@ def main():
         y_axis = np.concatenate((sig_phase, np.zeros(int(num_output_phase - sig_phase.shape[0]))), axis=0)
         y_axis_pre = np.concatenate((predicted_phase, np.zeros(num_output_phase - predicted_phase.shape[0])), axis=0)
 
-        # remember the 3,5,7hz
-        img_3hz_gt.append(y_axis[12])
-        img_3hz_predict.append(y_axis_pre[12])
-        img_5hz_gt.append(y_axis[24])
-        img_5hz_predict.append(y_axis_pre[24])
-        img_7hz_gt.append(y_axis[36])
-        img_7hz_predict.append(y_axis_pre[36])
+        # remember the 10, 30, 50 mhz
+        img_10mhz_gt.append(y_axis[0])
+        img_10mhz_predict.append(y_axis_pre[0])
+        img_30mhz_gt.append(y_axis[2])
+        img_30mhz_predict.append(y_axis_pre[2])
+        img_50mhz_gt.append(y_axis[4])
+        img_50mhz_predict.append(y_axis_pre[4])
 
         # ! remember phase wrapping problem use min((error),(error+2pi),(error-2pi))
         abs_error = abs(y_axis_pre[0:num_output_phase] - y_axis[0:num_output_phase])
@@ -446,110 +446,110 @@ def main():
         # record abs error for each trace
         mean_error_trace.append(error_buffer.min(axis=0).mean())  # one value for this one trace
 
-    # 3,5,7 Hz shot-receiver frequency slice
-    img_3hz_gt = np.array(img_3hz_gt).reshape(Num_shot, Num_receiver)
-    img_5hz_gt = np.array(img_5hz_gt).reshape(Num_shot, Num_receiver)
-    img_7hz_gt = np.array(img_7hz_gt).reshape(Num_shot, Num_receiver)
-    img_3hz_predict = np.array(img_3hz_predict).reshape(Num_shot, Num_receiver)
-    img_5hz_predict = np.array(img_5hz_predict).reshape(Num_shot, Num_receiver)
-    img_7hz_predict = np.array(img_7hz_predict).reshape(Num_shot, Num_receiver)
-    img_3hz_residual = np.min([abs(img_3hz_predict - img_3hz_gt), abs(img_3hz_predict - img_3hz_gt + 2*np.pi),
-                               abs(img_3hz_predict - img_3hz_gt - 2*np.pi)], axis=0)
-    img_5hz_residual = np.min([abs(img_5hz_predict - img_5hz_gt), abs(img_5hz_predict - img_5hz_gt + 2*np.pi),
-                               abs(img_5hz_predict - img_5hz_gt - 2*np.pi)], axis=0)
-    img_7hz_residual = np.min([abs(img_7hz_predict - img_7hz_gt), abs(img_7hz_predict - img_7hz_gt + 2*np.pi),
-                               abs(img_7hz_predict - img_7hz_gt - 2*np.pi)], axis=0)
-
+    # 10,30,50 MHz shot-receiver frequency slice
+    img_10mhz_gt = np.array(img_10mhz_gt).reshape(Num_shot, Num_receiver)
+    img_30mhz_gt = np.array(img_30mhz_gt).reshape(Num_shot, Num_receiver)
+    img_50mhz_gt = np.array(img_50mhz_gt).reshape(Num_shot, Num_receiver)
+    img_10mhz_predict = np.array(img_10mhz_predict).reshape(Num_shot, Num_receiver)
+    img_30mhz_predict = np.array(img_30mhz_predict).reshape(Num_shot, Num_receiver)
+    img_50mhz_predict = np.array(img_50mhz_predict).reshape(Num_shot, Num_receiver)
+    img_10mhz_residual = np.min([abs(img_10mhz_predict - img_10mhz_gt), abs(img_10mhz_predict - img_10mhz_gt + 2*np.pi),
+                               abs(img_10mhz_predict - img_10mhz_gt - 2*np.pi)], axis=0)
+    img_30mhz_residual = np.min([abs(img_30mhz_predict - img_30mhz_gt), abs(img_30mhz_predict - img_30mhz_gt + 2*np.pi),
+                               abs(img_30mhz_predict - img_30mhz_gt - 2*np.pi)], axis=0)
+    img_50mhz_residual = np.min([abs(img_50mhz_predict - img_50mhz_gt), abs(img_50mhz_predict - img_50mhz_gt + 2*np.pi),
+                               abs(img_50mhz_predict - img_50mhz_gt - 2*np.pi)], axis=0)
+    # 10 mhz
     fig, axes = plt.subplots(1, 3, sharex=True, sharey=True)
-    vmin = np.min(img_3hz_gt)
-    vmax = np.max(img_3hz_gt)
+    vmin = np.min(img_10mhz_gt)
+    vmax = np.max(img_10mhz_gt)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_gt = axes[0].imshow(img_3hz_gt, aspect='auto', norm=norm)
+    im_gt = axes[0].imshow(img_10mhz_gt, aspect='auto', norm=norm)
     fig.colorbar(im_gt, ax=axes[0])
-    axes[0].set_title('3 Hz phase ground truth')
+    axes[0].set_title('10 MHz phase ground truth')
     axes[0].set_xlabel('receiver')
     axes[0].set_ylabel('shot')
-    vmin = np.min(img_3hz_predict)
-    vmax = np.max(img_3hz_predict)
+    vmin = np.min(img_10mhz_predict)
+    vmax = np.max(img_10mhz_predict)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_predict = axes[1].imshow(img_3hz_predict, aspect='auto', norm=norm)
+    im_predict = axes[1].imshow(img_10mhz_predict, aspect='auto', norm=norm)
     fig.colorbar(im_predict, ax=axes[1])
     axes[1].set_title('prediction')
     axes[1].set_xlabel('receiver')
     axes[1].set_ylabel('shot')
-    vmin = np.min(img_3hz_residual)
-    vmax = np.max(img_3hz_residual)
+    vmin = np.min(img_10mhz_residual)
+    vmax = np.max(img_10mhz_residual)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_residual = axes[2].imshow(img_3hz_residual, aspect='auto', norm=norm)
+    im_residual = axes[2].imshow(img_10mhz_residual, aspect='auto', norm=norm)
     fig.colorbar(im_residual, ax=axes[2])
     axes[2].set_title('residual')
     axes[2].set_xlabel('receiver')
     axes[2].set_ylabel('shot')
-    title = '3Hz_phase'
+    title = '10MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
     plt.savefig(os.path.join(path_figures, title + '.png'))
     plt.close(fig)
     plt.cla()
-    # 5 Hz
+    # 30 mHz
     fig, axes = plt.subplots(1, 3, sharex=True, sharey=True)
-    vmin = np.min(img_5hz_gt)
-    vmax = np.max(img_5hz_gt)
+    vmin = np.min(img_30mhz_gt)
+    vmax = np.max(img_30mhz_gt)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_gt = axes[0].imshow(img_5hz_gt, aspect='auto', norm=norm)
+    im_gt = axes[0].imshow(img_30mhz_gt, aspect='auto', norm=norm)
     fig.colorbar(im_gt, ax=axes[0])
-    axes[0].set_title('5 Hz phase ground truth')
+    axes[0].set_title('30 MHz phase ground truth')
     axes[0].set_xlabel('receiver')
     axes[0].set_ylabel('shot')
-    vmin = np.min(img_5hz_predict)
-    vmax = np.max(img_5hz_predict)
+    vmin = np.min(img_30mhz_predict)
+    vmax = np.max(img_30mhz_predict)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_predict = axes[1].imshow(img_5hz_predict, aspect='auto', norm=norm)
+    im_predict = axes[1].imshow(img_30mhz_predict, aspect='auto', norm=norm)
     fig.colorbar(im_predict, ax=axes[1])
     axes[1].set_title('prediction')
     axes[1].set_xlabel('receiver')
     axes[1].set_ylabel('shot')
-    vmin = np.min(img_5hz_residual)
-    vmax = np.max(img_5hz_residual)
+    vmin = np.min(img_30mhz_residual)
+    vmax = np.max(img_30mhz_residual)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_residual = axes[2].imshow(img_5hz_residual, aspect='auto', norm=norm)
+    im_residual = axes[2].imshow(img_30mhz_residual, aspect='auto', norm=norm)
     fig.colorbar(im_residual, ax=axes[2])
     axes[2].set_title('residual')
     axes[2].set_xlabel('receiver')
     axes[2].set_ylabel('shot')
-    title = '5Hz_phase'
+    title = '10MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
     plt.savefig(os.path.join(path_figures, title + '.png'))
     plt.close(fig)
     plt.cla()
-    # 7Hz
+    # 50 mHz
     fig, axes = plt.subplots(1, 3, sharex=True, sharey=True)
-    vmin = np.min(img_7hz_gt)
-    vmax = np.max(img_7hz_gt)
+    vmin = np.min(img_50mhz_gt)
+    vmax = np.max(img_50mhz_gt)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_gt = axes[0].imshow(img_7hz_gt, aspect='auto', norm=norm)
+    im_gt = axes[0].imshow(img_50mhz_gt, aspect='auto', norm=norm)
     fig.colorbar(im_gt, ax=axes[0])
-    axes[0].set_title('7 Hz phase ground truth')
+    axes[0].set_title('50 MHz phase ground truth')
     axes[0].set_xlabel('receiver')
     axes[0].set_ylabel('shot')
-    vmin = np.min(img_7hz_predict)
-    vmax = np.max(img_7hz_predict)
+    vmin = np.min(img_50mhz_predict)
+    vmax = np.max(img_50mhz_predict)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_predict = axes[1].imshow(img_7hz_predict, aspect='auto', norm=norm)
+    im_predict = axes[1].imshow(img_50mhz_predict, aspect='auto', norm=norm)
     fig.colorbar(im_predict, ax=axes[1])
     axes[1].set_title('prediction')
     axes[1].set_xlabel('receiver')
     axes[1].set_ylabel('shot')
-    vmin = np.min(img_7hz_residual)
-    vmax = np.max(img_7hz_residual)
+    vmin = np.min(img_50mhz_residual)
+    vmax = np.max(img_50mhz_residual)
     norm = colors.Normalize(vmin=vmin, vmax=vmax, clip=False)
-    im_residual = axes[2].imshow(img_7hz_residual, aspect='auto', norm=norm)
+    im_residual = axes[2].imshow(img_50mhz_residual, aspect='auto', norm=norm)
     fig.colorbar(im_residual, ax=axes[2])
     axes[2].set_title('residual')
     axes[2].set_xlabel('receiver')
     axes[2].set_ylabel('shot')
-    title = '7Hz_phase'
+    title = '10MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
     plt.savefig(os.path.join(path_figures, title + '.png'))
