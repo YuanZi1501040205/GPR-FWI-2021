@@ -221,7 +221,7 @@ def main():
             ax.legend() # loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-            ax.set(ylim=[-15, 15])
+
             fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
@@ -258,7 +258,7 @@ def main():
             ax.legend()
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-            ax.set(ylim=[-15, 15])
+
             fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
