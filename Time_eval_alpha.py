@@ -411,8 +411,8 @@ def main():
             complex_sig_predicted_fft_trace = np.append(complex_sig_predicted_fft_trace, [sig_predicted_fft[k].real])
             complex_sig_predicted_fft_trace = np.append(complex_sig_predicted_fft_trace, [sig_predicted_fft[k].imag])
         # reshape
-        complex_sig_fft_trace = complex_sig_fft_trace.reshape(num_output_complex)
-        complex_sig_predicted_fft_trace = complex_sig_predicted_fft_trace.reshape(num_output_complex)
+        complex_sig_fft_trace = complex_sig_fft_trace.reshape(num_input_complex + num_output_complex)
+        complex_sig_predicted_fft_trace = complex_sig_predicted_fft_trace.reshape(num_input_complex + num_output_complex)
         # real, imaginary part to phase
         sig_phase = tophase(complex_sig_fft_trace)  # the size become half
         predicted_phase = tophase(complex_sig_predicted_fft_trace)  # the size become half
