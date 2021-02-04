@@ -118,7 +118,7 @@ def main():
     num_receiver = x.shape[1]
     for i in range(m):
         # test on the shot gather
-        num_shot = random.Random(1997 + i).randint(1, x.shape[0] + 1)
+        num_shot = random.Random(1997 + i).randint(0, x.shape[0])
         imag_high = np.zeros((num_receiver, num_input))
         imag_low = np.zeros((num_receiver, num_output))
         imag_low_pred = np.zeros((num_receiver, num_output))
