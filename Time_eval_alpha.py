@@ -259,7 +259,7 @@ def main():
             ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2)
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
