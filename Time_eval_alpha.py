@@ -420,8 +420,8 @@ def main():
         num_output_phase = int(num_output_complex / 2)
 
         # calculate normalized phase abs for each trace
-        y_axis = np.concatenate((sig_phase, np.zeros(int(num_output_phase - sig_phase.shape[0]))), axis=0)
-        y_axis_pre = np.concatenate((predicted_phase, np.zeros(num_output_phase - predicted_phase.shape[0])), axis=0)
+        y_axis = sig_phase
+        y_axis_pre = predicted_phase
 
         # remember the 10, 30, 50 mhz
         img_10mhz_gt.append(y_axis[0])
