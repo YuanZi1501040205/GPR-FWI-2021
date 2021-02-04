@@ -215,15 +215,14 @@ def main():
             title = 'Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index)
             # calculate normalized phase abs for each traces
             mean_error_trace = abs(predicted_low_frequency_signal[0:num_output] - sig_low_true[0:num_output]).mean()
-            plt.text(5, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(0, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
             plt.title(title)
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2)
+            ax.legend() # loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
             # ax.set(ylim=[-1.2, 1.2])
-            ax.set(xlim=[0, 5])
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -252,11 +251,11 @@ def main():
             title = 'Zoom_Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index)
             # calculate normalized phase abs for each traces
             mean_error_trace = abs(predicted_low_frequency_signal[0:num_output] - sig_low_true[0:num_output]).mean()
-            plt.text(5, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(0, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
 
             plt.title(title)
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2)
+            ax.legend()
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
             fig.savefig(os.path.join(path_figures, title + '.png'))
@@ -326,16 +325,14 @@ def main():
             error_bars = error_buffer.min(axis=0)
 
             mean_error_trace = error_bars.mean()
-            plt.text(0, -5, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(0, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
             plt.title(title)
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2)
+            ax.legend()
             ax.set(xlabel='Frequency (Hz)')
             ax.set(ylabel='Phase (Radians)')
-            ax.set(ylim=[-3.3, 3.3])
-            ax.set(xlim=[0.8, 10.2])
             # fig.savefig('figures/fig1.pdf')
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -354,10 +351,10 @@ def main():
                      label='Predicted Signal')  # plot the line of predicted results
             title = 'Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index) + '_Power'
             plt.title(title)
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2)
+            ax.legend()
             ax.set(xlabel='Frequency (Hz)')
             ax.set(ylabel='Power (Radians)')
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -403,8 +400,8 @@ def main():
         sig_predicted = predicted_reconstructed_signal
         # FFT only extract the 1-10 Hz frequency components to calculate the total error
         from scipy import fftpack
-        sig_true_fft = fftpack.fft(time_ground_truth)[5:51]
-        sig_predicted_fft = fftpack.fft(sig_predicted)[5:51]
+        sig_true_fft = fftpack.fft(time_ground_truth)[pm.freq_range[0]:pm.freq_range[1]]
+        sig_predicted_fft = fftpack.fft(sig_predicted)[pm.freq_range[0]:pm.freq_range[1]]
         # Complex value to Real and Imaginary Part
         complex_sig_fft_trace = []
         complex_sig_predicted_fft_trace = []
@@ -564,7 +561,7 @@ def main():
     with plt.style.context(['science', 'ieee', 'grid', 'no-latex']):
         fig, ax = plt.subplots()
         plt.bar(x_axis[0:num_output_phase], error_bars)
-        plt.text(0, -0.3, 'MAE:' + str(total_abs), style='italic',
+        plt.text(0, 0, 'MAE:' + str(total_abs), style='italic',
                  bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
         model_name = path_model.split('/')[-1].split('_state')[0]
         title = 'Frequency-wise'
@@ -572,7 +569,7 @@ def main():
         ax.set(xlabel='Frequency (Hz)')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        fig.savefig(os.path.join(path_figures, title + '.png'))
         plt.close(fig)
         plt.cla()
     # error for different offsets
@@ -588,7 +585,7 @@ def main():
     with plt.style.context(['science', 'ieee', 'grid', 'no-latex']):
         fig, ax = plt.subplots()
         plt.bar(x_axis, y_axis)
-        plt.text(0, -0.3, 'MAE:' + str(total_abs), style='italic',
+        plt.text(0, 0, 'MAE:' + str(total_abs), style='italic',
                  bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 4})
         model_name = path_model.split('/')[-1].split('_state')[0]
         title = 'Receiver-wise'
@@ -596,7 +593,7 @@ def main():
         ax.set(xlabel='Receiver')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        fig.savefig(os.path.join(path_figures, title + '.png'))
         plt.close(fig)
         plt.cla()
 
@@ -609,7 +606,7 @@ def main():
     with plt.style.context(['science', 'ieee', 'grid', 'no-latex']):
         fig, ax = plt.subplots()
         plt.bar(x_axis, y_axis)
-        plt.text(0, -0.15, 'Mean abs error:' + str(total_abs), style='italic',
+        plt.text(0, 0, 'Mean abs error:' + str(total_abs), style='italic',
                  bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 4})
         model_name = path_model.split('/')[-1].split('_state')[0]
         title = 'Shot-wise'
@@ -617,7 +614,7 @@ def main():
         ax.set(xlabel='Shot')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        fig.savefig(os.path.join(path_figures, title + '.png'))
         plt.cla()
     print("done")
 
