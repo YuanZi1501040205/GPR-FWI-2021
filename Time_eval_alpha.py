@@ -563,7 +563,7 @@ def main():
     # plot the error bars abd the total MAE  at the result statistic figure
     with plt.style.context(['science', 'ieee', 'grid', 'no-latex']):
         fig, ax = plt.subplots()
-        plt.bar(x_axis[0:num_output_phase], error_bars)
+        plt.bar(x_axis[0:num_output_phase]/1e7, error_bars)
         # plt.text(0, 0, 'MAE:' + str(total_abs), style='italic',
         #          bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
         title = 'Frequency-wise'
