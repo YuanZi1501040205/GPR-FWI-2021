@@ -144,7 +144,7 @@ def main():
         min_v = np.percentile(imag_high, 1)
         norm = colors.Normalize(vmin=min_v, vmax=max_v, clip=True)
         axes[0].imshow(imag_high, aspect='auto', norm=norm, cmap='seismic')
-        axes[0].set_title('10-50Hz')
+        axes[0].set_title('Input')
         axes[0].set_xlabel('receiver')
         axes[0].set_ylabel('time')
         # vmin = np.min(imag_low)
@@ -158,13 +158,13 @@ def main():
         axes[2].imshow(imag_low_pred, aspect='auto', norm=norm, cmap='seismic')
         axes[2].set_title('Pred BWE')
         imag_residual = np.abs(imag_low_pred - imag_low)
-        max_v = np.percentile(imag_residual, 99)
+        # max_v = np.percentile(imag_residual, 99)
         norm = colors.Normalize(vmin=0.0, vmax=max_v, clip=True)
         axes[3].imshow(imag_residual, aspect='auto', norm=norm, cmap='seismic')
         axes[3].set_title('Residual')
         title = 'Shot_' + str(num_shot)
         fig.suptitle(title, verticalalignment='center')
-        plt.savefig(os.path.join(path_figures, title + '.png'))
+        plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
         plt.close(fig)
         plt.cla()
 
@@ -215,14 +215,14 @@ def main():
             title = 'Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index)
             # calculate normalized phase abs for each traces
             mean_error_trace = abs(predicted_low_frequency_signal[0:num_output] - sig_low_true[0:num_output]).mean()
-            plt.text(0, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(0, -13, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
             plt.title(title)
             ax.legend() # loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-            # ax.set(ylim=[-1.2, 1.2])
-            fig.savefig(os.path.join(path_figures, title + '.png'))
+            ax.set(ylim=[-15, 15])
+            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
             plt.close(fig)
             plt.cla()
 
@@ -251,14 +251,15 @@ def main():
             title = 'Zoom_Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index)
             # calculate normalized phase abs for each traces
             mean_error_trace = abs(predicted_low_frequency_signal[0:num_output] - sig_low_true[0:num_output]).mean()
-            plt.text(0, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(-13, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
 
             plt.title(title)
             ax.legend()
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-            fig.savefig(os.path.join(path_figures, title + '.png'))
+            ax.set(ylim=[-15, 15])
+            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
             plt.close(fig)
             plt.cla()
 
@@ -325,14 +326,15 @@ def main():
             error_bars = error_buffer.min(axis=0)
 
             mean_error_trace = error_bars.mean()
-            plt.text(0, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(0, -3, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
             plt.title(title)
             ax.legend()
             ax.set(xlabel='Frequency (Hz)')
             ax.set(ylabel='Phase (Radians)')
+            ax.set(ylim=[-np.pi, np.pi])
             # fig.savefig('figures/fig1.pdf')
-            fig.savefig(os.path.join(path_figures, title + '.png'))
+            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
             plt.close(fig)
             plt.cla()
 
@@ -351,10 +353,10 @@ def main():
                      label='Predicted Signal')  # plot the line of predicted results
             title = 'Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index) + '_Power'
             plt.title(title)
-            ax.legend()
+            ax.legend(loc='upper right')
             ax.set(xlabel='Frequency (Hz)')
             ax.set(ylabel='Power (Radians)')
-            fig.savefig(os.path.join(path_figures, title + '.png'))
+            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
             plt.close(fig)
             plt.cla()
 
@@ -485,7 +487,7 @@ def main():
     title = '10MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
-    plt.savefig(os.path.join(path_figures, title + '.png'))
+    plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
     plt.close(fig)
     plt.cla()
     # 30 mHz
@@ -514,10 +516,10 @@ def main():
     axes[2].set_title('residual')
     axes[2].set_xlabel('receiver')
     axes[2].set_ylabel('shot')
-    title = '10MHz_phase'
+    title = '30MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
-    plt.savefig(os.path.join(path_figures, title + '.png'))
+    plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
     plt.close(fig)
     plt.cla()
     # 50 mHz
@@ -546,10 +548,10 @@ def main():
     axes[2].set_title('residual')
     axes[2].set_xlabel('receiver')
     axes[2].set_ylabel('shot')
-    title = '10MHz_phase'
+    title = '50MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
-    plt.savefig(os.path.join(path_figures, title + '.png'))
+    plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
     plt.close(fig)
     plt.cla()
 
@@ -561,15 +563,14 @@ def main():
     with plt.style.context(['science', 'ieee', 'grid', 'no-latex']):
         fig, ax = plt.subplots()
         plt.bar(x_axis[0:num_output_phase], error_bars)
-        plt.text(0, 0, 'MAE:' + str(total_abs), style='italic',
-                 bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
-        model_name = path_model.split('/')[-1].split('_state')[0]
+        # plt.text(0, 0, 'MAE:' + str(total_abs), style='italic',
+        #          bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
         title = 'Frequency-wise'
         plt.title(title)
         ax.set(xlabel='Frequency (Hz)')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'))
+        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
         plt.close(fig)
         plt.cla()
     # error for different offsets
@@ -593,7 +594,7 @@ def main():
         ax.set(xlabel='Receiver')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'))
+        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
         plt.close(fig)
         plt.cla()
 
@@ -614,7 +615,7 @@ def main():
         ax.set(xlabel='Shot')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'))
+        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
         plt.cla()
     print("done")
 
