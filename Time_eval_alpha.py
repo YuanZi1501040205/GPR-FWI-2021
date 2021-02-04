@@ -164,7 +164,7 @@ def main():
         axes[3].set_title('Residual')
         title = 'Shot_' + str(num_shot)
         fig.suptitle(title, verticalalignment='center')
-        plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        plt.savefig(os.path.join(path_figures, title + '.png'))
         plt.close(fig)
         plt.cla()
 
@@ -222,7 +222,7 @@ def main():
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
             ax.set(ylim=[-15, 15])
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -259,7 +259,7 @@ def main():
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
             ax.set(ylim=[-15, 15])
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -334,7 +334,7 @@ def main():
             ax.set(ylabel='Phase (Radians)')
             ax.set(ylim=[-np.pi, np.pi])
             # fig.savefig('figures/fig1.pdf')
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -356,7 +356,7 @@ def main():
             ax.legend(loc='upper right')
             ax.set(xlabel='Frequency (Hz)')
             ax.set(ylabel='Power (Radians)')
-            fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+            fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
 
@@ -487,7 +487,7 @@ def main():
     title = '10MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
-    plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+    plt.savefig(os.path.join(path_figures, title + '.png'))
     plt.close(fig)
     plt.cla()
     # 30 mHz
@@ -519,7 +519,7 @@ def main():
     title = '30MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
-    plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+    plt.savefig(os.path.join(path_figures, title + '.png'))
     plt.close(fig)
     plt.cla()
     # 50 mHz
@@ -551,7 +551,7 @@ def main():
     title = '50MHz_phase'
     plt.gcf().set_size_inches([9.0, 5.5])
     plt.tight_layout()
-    plt.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+    plt.savefig(os.path.join(path_figures, title + '.png'))
     plt.close(fig)
     plt.cla()
 
@@ -570,7 +570,7 @@ def main():
         ax.set(xlabel='Frequency (Hz)')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        fig.savefig(os.path.join(path_figures, title + '.png'))
         plt.close(fig)
         plt.cla()
     # error for different offsets
@@ -594,7 +594,7 @@ def main():
         ax.set(xlabel='Receiver')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        fig.savefig(os.path.join(path_figures, title + '.png'))
         plt.close(fig)
         plt.cla()
 
@@ -615,7 +615,7 @@ def main():
         ax.set(xlabel='Shot')
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
-        fig.savefig(os.path.join(path_figures, title + '.png'), dpi=300)
+        fig.savefig(os.path.join(path_figures, title + '.png'))
         plt.cla()
     print("done")
 
