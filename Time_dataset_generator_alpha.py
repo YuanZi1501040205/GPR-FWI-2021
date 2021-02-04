@@ -68,7 +68,7 @@ def main():
     sample_freq = fftpack.fftfreq(fftpack.fft(time_vec).size, d=time_step)
 
 
-    # patch for viking
+    # patch for gpr cross well
     num_shot = 13
     num_receiver = 13
 

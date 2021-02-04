@@ -559,6 +559,7 @@ def main():
     error_bars = np.array(error_bars) / n
     total_abs = np.array(error_bars).mean()
     print("Total MAE: ", total_abs)
+
     # plot the error bars abd the total MAE  at the result statistic figure
     with plt.style.context(['science', 'ieee', 'grid', 'no-latex']):
         fig, ax = plt.subplots()
@@ -571,7 +572,6 @@ def main():
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
         fig.savefig(os.path.join(path_figures, title + '.png'))
-        plt.close(fig)
         plt.cla()
     # error for different offsets
 
@@ -595,7 +595,6 @@ def main():
         ax.set(ylabel='Phase Mean Absolute Errors (Radians)')
         ax.autoscale(tight=True)
         fig.savefig(os.path.join(path_figures, title + '.png'))
-        plt.close(fig)
         plt.cla()
 
 
