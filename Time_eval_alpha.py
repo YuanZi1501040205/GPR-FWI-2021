@@ -221,7 +221,7 @@ def main():
             ax.legend() # loc='upper center', bbox_to_anchor=(0.5, -0.4), shadow=True, ncol=2
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-
+            ax.set(ylim=[-15, 15])
             fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
@@ -251,14 +251,14 @@ def main():
             title = 'Zoom_Shot_' + str(shot_index) + '_Receiver_' + str(receiver_index)
             # calculate normalized phase abs for each traces
             mean_error_trace = abs(predicted_low_frequency_signal[0:num_output] - sig_low_true[0:num_output]).mean()
-            plt.text(-13, 0, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
+            plt.text(0, -13, 'Mean abs error for this trace:' + str(mean_error_trace), style='italic',
                      bbox={'facecolor': 'blue', 'alpha': 0.5, 'pad': 3})
 
             plt.title(title)
             ax.legend()
             ax.set(xlabel='Time (s)')
             ax.set(ylabel='Magnitude')
-
+            ax.set(ylim=[-15, 15])
             fig.savefig(os.path.join(path_figures, title + '.png'))
             plt.close(fig)
             plt.cla()
