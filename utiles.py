@@ -4,7 +4,7 @@ import sys
 import h5py
 
 class tools():
-    def __init__(self, num_shot=13, num_receiver=13, length_sig=4241, len_x=800, len_y=800):
+    def __init__(self, num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80):
         self.num_shot = num_shot
         self.num_receiver = num_receiver
         self.length_sig = length_sig
@@ -16,28 +16,28 @@ class tools():
         self.num_para = len_x * len_y
 
     #gprMax
-    def forward(self, path_input="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt/",
+    def forward(self, path_input="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt",
                 path_gprMax="/home/yzi/research/gprMax",
                 path_output="/home/yzi/research/GPR-FWI-2021/forward/forward_output_gt"):
-        '''run forward model based on the in txt files'''
+        """run forward model based on the in txt files"""
         for i in range(self.num_shot):
-            file = path_input + 'cross_well_cylinder_B_scan_shot_' + str(i) + '.in'# input txt file of gprMax
+            file = path_input + '/cross_well_cylinder_B_scan_shot_' + str(i) + '.in'# input txt file of gprMax
             os.system('eval "$(conda shell.bash hook)"\n'
                       + 'conda activate gprMax\n'
                       + 'cd ' + path_gprMax + '\n'
                       + 'python -m gprMax ' + file + '\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
-    def make_in_gprMax_gt(self,path_input ="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt/" ):
-        '''generate txt files for forward based on the ground truth geo-model'''
+    def make_in_gprMax_gt(self,path_input ="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt" ):
+        """generate txt files for forward based on the ground truth geo-model"""
         folder_path = path_input
         for i in range(self.num_shot):
-            path_file = folder_path + 'cross_well_cylinder_B_scan_shot_' + str(i) + '.in'
+            path_file = folder_path + '/cross_well_cylinder_B_scan_shot_' + str(i) + '.in'
             file = open(path_file, "w")
             # input current parameter=>forward=> current observation
             head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
-                          "#domain: 8.0 8.0 0.01\n",
-                          "#dx_dy_dz: 0.01 0.01 0.01\n",
+                          "#domain: 8.0 8.0 0.1\n",
+                          "#dx_dy_dz: 0.1 0.1 0.1\n",
                           "#time_window: 10e-08\n\n"
                           ]
             offset = 0.5
@@ -52,12 +52,12 @@ class tools():
                               "#material: 6.5 0.008 1.0 0.0 pipe\n",
                               "#material: 5.0 0.001 1.0 0.0 bg\n\n"]
 
-            geo_model_lines = ["#box: 0.0 0.0 0.0 8.0 8.0 0.01 top\n",
-                               "#cylindrical_sector: z 0.0 18.0 0.0 0.01 16.0 270.0 90.0 mid\n",
-                               "#box: 0.0 6.0 0.0 8.0 8.0 0.01 top\n",
-                               "#cylinder: 3.0 4.0 0.0 3.0 4.0 0.01 0.5 pipe\n",
-                               "#cylinder: 5.0 4.0 0.0 5.0 4.0 0.01 0.5 pipe\n",
-                               "#geometry_view: 0.0 0.0 0.0 8.0 8.0 0.01 0.01 0.01 0.01 cross_well_half_space n\n"]
+            geo_model_lines = ["#box: 0.0 0.0 0.0 8.0 8.0 0.1 top\n",
+                               "#cylindrical_sector: z 0.0 18.0 0.0 0.1 16.0 270.0 90.0 mid\n",
+                               "#box: 0.0 6.0 0.0 8.0 8.0 0.1 top\n",
+                               "#cylinder: 3.0 4.0 0.0 3.0 4.0 0.1 0.5 pipe\n",
+                               "#cylinder: 5.0 4.0 0.0 5.0 4.0 0.1 0.5 pipe\n",
+                               "#geometry_view: 0.0 0.0 0.0 8.0 8.0 0.1 0.1 0.1 0.1 cross_well_half_space n\n"]
 
             file.writelines(head_lines)
             file.writelines(shot_receiver_line)
@@ -65,45 +65,45 @@ class tools():
             file.writelines(geo_model_lines)
             file.close()
 
-    def make_in_gprMax(self,path_output, file_para_p='./in_p.dat', file_para_c='./in_c.dat'):
-        '''generate txt files for forward based on the current estimated parameters of geo-model
+    def make_in_gprMax(self, path_output, file_para_p='./in_p.dat', file_para_c='./in_c.dat'):
+        """generate txt files for forward based on the current estimated parameters of geo-model
         file_para_p/file_para_c is in.dat file which is PEST's output after inversion and input for gprMax for forward
         path_output point to the folder store these gprMax instruction txt files
-        geo model is len_x*len_y matrix, each pixel has two parameters(permitivity(i,j) and conductivity(i,j))'''
+        geo model is len_x*len_y matrix, each pixel has two parameters(permitivity(i,j) and conductivity(i,j))"""
 
         f1 = open(file_para_p, 'r')
         f1_Lines = f1.readlines()
-        permittivity = np.array([float(i) for i in f1_Lines]).reshape(len_x, len_y)
+        permittivity = np.array([float(i) for i in f1_Lines]).reshape(self.len_x, self.len_y)
 
         f2 = open(file_para_c, 'r')
         f2_Lines = f2.readlines()
-        conductivity = np.array([float(i) for i in f2_Lines]).reshape(len_x, len_y)
+        conductivity = np.array([float(i) for i in f2_Lines]).reshape(self.len_x, self.len_y)
 
         material_lines=[]
         geo_model_lines=[]
         for i in range(self.len_x):
             for j in range(self.len_y):
-                x_l = i * 0.01
-                x_r = (i + 1) * 0.01
-                y_l = j * 0.01
-                y_r = (j + 1) * 0.01
+                x_l = i * 0.1
+                x_r = (i + 1) * 0.1
+                y_l = j * 0.1
+                y_r = (j + 1) * 0.1
                 x_l = ("%.2f" % x_l)
                 x_r = ("%.2f" % x_r)
                 y_l = ("%.2f" % y_l)
                 y_r = ("%.2f" % y_r)
                 index_pix = "pix_"+str(i)+"_"+str(j)
                 material_lines.append("#material: "+str(permittivity[i][j])+" "+str(conductivity[i][j])+" 1.0 0.0 "+index_pix+"\n")
-                geo_model_lines.append("#box: "+x_l+" "+y_l+" 0.0 "+x_r+" "+y_r+" 0.01 "+index_pix+"\n")
+                geo_model_lines.append("#box: "+x_l+" "+y_l+" 0.0 "+x_r+" "+y_r+" 0.1 "+index_pix+"\n")
         material_lines[-1] = material_lines[-1]+"\n"
 
         folder_path = path_output
         for _ in range(self.num_shot):
-            path_file = folder_path + 'cross_well_cylinder_B_scan_shot_' + str(i) + '.in'
+            path_file = folder_path + '/cross_well_cylinder_B_scan_shot_' + str(_) + '.in'
             file = open(path_file, "w")
             # input current parameter=>forward=> current observation
             head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
-                          "#domain: 8.0 8.0 0.01\n",
-                          "#dx_dy_dz: 0.01 0.01 0.01\n",
+                          "#domain: 8.0 8.0 0.1\n",
+                          "#dx_dy_dz: 0.1 0.1 0.1\n",
                           "#time_window: 10e-08\n\n"
                           ]
             offset = 0.5
@@ -121,12 +121,12 @@ class tools():
 
 
     # PEST
-    def inverse(self, file_pst):
-        '''run inversion given bash of forward model'''
-        os.system('pest '+file_pst)
+    def inverse(self,path_folder_pest, file_pst):
+        """run inversion given bash of forward model"""
+        os.system('export PATH=$PATH:' + path_folder_pest+'\n'+'pest '+file_pst+'\n')
 
-    def make_tpl(self, tpl_file, mode='permittivity'):
-        '''make the tpl file for permittivity/conductivity inversion'''
+    def make_in_tpl_pest(self, tpl_file, mode='permittivity'):
+        """make the tpl file for permittivity/conductivity inversion"""
         f = open(tpl_file, "w")
         in_tpl_headlines = ["ptf #\n"]
         if mode == 'permittivity':
@@ -143,7 +143,7 @@ class tools():
         f.close()
 
     def make_in_pest(self, in_data_file, inital_value=5.5):
-        '''in.data'''
+        """in.data store the value of parameter to estimate"""
         f = open(in_data_file, "w")
         in_data_headlines = []
         inital_value = ("%e" % inital_value)
@@ -153,12 +153,10 @@ class tools():
         f.writelines(in_data_headlines)
         f.close()
 
-    def enable_pest(self, path_folder_pest):
-        os.system('export PATH=$PATH:'+path_folder_pest)
 
     def update_curr_obs(self, path_folder_h5_result):
-        '''read gprMax's hd5f result to the matrix self.curr_obs [shot,receiver,len_sig]'''
-        path = path_folder_h5_result + 'cross_well_cylinder_B_scan_shot_'
+        """read gprMax's hd5f result to the matrix self.curr_obs [shot,receiver,len_sig]"""
+        path = path_folder_h5_result + '/cross_well_cylinder_B_scan_shot_'
         for i in range(self.num_shot):
             path_f = path + str(i) + '.out'
             h5_file = h5py.File(path_f, 'r')
@@ -167,8 +165,19 @@ class tools():
                 rx = rxs['rx' + str(j + 1)]
                 self.curr_obs[i][j][:] = rx['Ez'][()]
 
-    def make_curr_obs(self, file_out_data):
-        '''out.data'''
+    def update_gt_obs(self, path_folder_h5_result):
+        """read gprMax's hd5f result to the matrix self.curr_obs [shot,receiver,len_sig]"""
+        path = path_folder_h5_result + '/cross_well_cylinder_B_scan_shot_'
+        for i in range(self.num_shot):
+            path_f = path + str(i) + '.out'
+            h5_file = h5py.File(path_f, 'r')
+            rxs = h5_file['rxs']
+            for j in range(self.num_receiver):
+                rx = rxs['rx' + str(j + 1)]
+                self.real_obs[i][j][:] = rx['Ez'][()]
+
+    def make_curr_obs_pest(self, file_out_data):
+        """out.data"""
         f = open(file_out_data, "w")
         # input current parameter=>forward=> current observation
         cur_obs_data_lines = [""]
@@ -181,7 +190,7 @@ class tools():
         f.close()  # to change file access modes
 
     def make_ins_pest(self, ins_file):
-        '''out.ins'''
+        """out.ins"""
         f = open(ins_file, "w")
         # input current parameter=>forward=> current observation
         out_ins_lines = ["pif #\n"]
@@ -189,12 +198,13 @@ class tools():
             for j in range(self.num_receiver):
                 for k in range(self.length_sig):
                     name_obs = "o" + str(i) + "_" + str(j) + "_" + str(k)
-                    out_ins_lines.append("l1 (" + name_obs + ")1:12")
+                    # out_ins_lines.append("l1 (" + name_obs + ")1:12\n")
+                    out_ins_lines.append("l1 !" + name_obs + "!\n")
         f.writelines(out_ins_lines)
         f.close()  # to change file access modes
 
-    def make_pst(self, pst_file, mode='permittivity', initial_para_value=np.zeros((800,800)) + 5.5):
-        '''make the .pst control file for PEST permittivity/conductivity inversion
+    def make_pst_pest(self, pst_file, mode='permittivity', initial_para_value=np.zeros((80,80)) + 5.5):
+        """make the .pst control file for PEST permittivity/conductivity inversion
 
         input:
         initial value of estimated parameters;
@@ -202,7 +212,7 @@ class tools():
         .pst file
 
         output:
-        .pst file'''
+        .pst file"""
         f = open(pst_file, "w")
         if mode == 'permittivity':
             para = "p"
@@ -211,7 +221,7 @@ class tools():
         else:
             sys.exit("input of function is wrong!")
         ctrl_data_lines = ["pcf\n", "* control data\n", "restart  estimation\n",
-                           "    640000    716729     640000     0     1\n",
+                           "    6400    71825     6400     0     1\n",
                            "    1     1 single point   1   0   0\n", "  5.0   2.0   0.3  0.03    10\n",
                            "  3.0   3.0 0.001\n", "  0.1\n   20  0.01     3     3  0.01     3\n", "    0     0     0\n"]
         # parameter groups
@@ -234,7 +244,7 @@ class tools():
                     obs_f = ("%.6f" % self.real_obs[i][j][k])
                     obs_data_lines.append(name_obs_para + "            " + str(obs_f) + "      1.0  obsgroup\n")
 
-        model_control_lines = ["* model command line\n", "./forward.sh\n", "* model input/output\n",
+        model_control_lines = ["* model command line\n", "bash "+para+"_forward.sh\n", "* model input/output\n",
                                "in"+"_"+para+".tpl in"+"_"+para+".dat\n", "out"+"_"+para+".ins out"+"_"+para+".dat\n", "* prior information\n"]
         f.writelines(ctrl_data_lines)
         f.writelines(para_lines)
