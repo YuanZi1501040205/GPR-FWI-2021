@@ -26,7 +26,7 @@ class tools():
                       # + 'conda deactivate\n'
                       # + 'conda activate gprMax\n'
                       'cd ' + path_gprMax + '\n'
-                      + 'python -m gprMax ' + file + '\n'
+                      + 'python -m gprMax ' + file + ' -gpu 0\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
 

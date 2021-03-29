@@ -22,9 +22,9 @@ class tools():
         """run forward model based on the in txt files"""
         for i in range(self.num_shot):
             file = path_input + '/cross_well_cylinder_B_scan_shot_' + str(i) + '.in'# input txt file of gprMax
-            os.system('eval "$(conda shell.bash hook)"\n'
-                      + 'conda activate gprMax\n'
-                      + 'cd ' + path_gprMax + '\n'
+            os.system(#'eval "$(conda shell.bash hook)"\n'
+                      # + 'conda activate gprMax\n'
+                      'cd ' + path_gprMax + '\n'
                       + 'python -m gprMax ' + file + '\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
@@ -223,7 +223,7 @@ class tools():
         ctrl_data_lines = ["pcf\n", "* control data\n", "restart  estimation\n",
                            "    6400    71825     6400     0     1\n",
                            "    1     1 single point   1   0   0\n", "  5.0   2.0   0.3  0.03    10\n",
-                           "  3.0   3.0 0.001\n", "  0.1\n   20  0.01     3     3  0.01     3\n", "    0     0     0\n"]
+                           "  3.0   3.0 0.001\n", "  0.1\n   3  0.01     3     3  0.01     3\n", "    0     0     0\n"]
         # parameter groups
         # initial parameter data
         para_lines = ["* parameter groups\n"]
