@@ -4,7 +4,7 @@ import sys
 import h5py
 
 class tools():
-    def __init__(self, num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80):
+    def __init__(self, num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80, scale_discount=5):
         self.num_shot = num_shot
         self.num_receiver = num_receiver
         self.length_sig = length_sig
@@ -14,6 +14,7 @@ class tools():
         self.curr_obs = np.zeros((num_shot, num_receiver, length_sig))
         self.num_obs = num_shot * num_receiver * length_sig
         self.num_para = len_x * len_y
+        self.scale_discount = scale_discount
 
     #gprMax
     def forward(self, path_input="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt",
@@ -23,9 +24,11 @@ class tools():
         for i in range(self.num_shot):
             file = path_input + '/cross_well_cylinder_B_scan_shot_' + str(i) + '.in'# input txt file of gprMax
             os.system(#'eval "$(conda shell.bash hook)"\n'
+                      # + 'conda deactivate\n'
                       # + 'conda activate gprMax\n'
-                      'cd ' + path_gprMax + '\n'
-                      + 'python -m gprMax ' + file + '\n'
+                        'export PATH=$PATH:/usr/local/cuda-11.1/bin\n'
+                      + 'cd ' + path_gprMax + '\n'
+                      + 'python -m gprMax ' + file + ' -gpu 0\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
     def make_in_gprMax_gt(self,path_input ="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt" ):
@@ -65,28 +68,30 @@ class tools():
             file.writelines(geo_model_lines)
             file.close()
 
-    def make_in_gprMax(self, path_output, file_para_p='./in_p.dat', file_para_c='./in_c.dat'):
+    def make_in_gprMax(self, path_output, file_para_p='./in_p.dat', file_para_c='./in_c.dat', ):
         """generate txt files for forward based on the current estimated parameters of geo-model
         file_para_p/file_para_c is in.dat file which is PEST's output after inversion and input for gprMax for forward
         path_output point to the folder store these gprMax instruction txt files
         geo model is len_x*len_y matrix, each pixel has two parameters(permitivity(i,j) and conductivity(i,j))"""
-
+        x_scale = int(self.len_x/self.scale_discount)
+        y_scale = int(self.len_y / self.scale_discount)
         f1 = open(file_para_p, 'r')
         f1_Lines = f1.readlines()
-        permittivity = np.array([float(i) for i in f1_Lines]).reshape(self.len_x, self.len_y)
+        permittivity = np.array([float(i) for i in f1_Lines]).reshape(x_scale, y_scale)
 
         f2 = open(file_para_c, 'r')
         f2_Lines = f2.readlines()
-        conductivity = np.array([float(i) for i in f2_Lines]).reshape(self.len_x, self.len_y)
+        conductivity = np.array([float(i) for i in f2_Lines]).reshape(x_scale, y_scale)
 
         material_lines=[]
         geo_model_lines=[]
-        for i in range(self.len_x):
-            for j in range(self.len_y):
-                x_l = i * 0.1
-                x_r = (i + 1) * 0.1
-                y_l = j * 0.1
-                y_r = (j + 1) * 0.1
+
+        for i in range(x_scale):
+            for j in range(y_scale):
+                x_l = i * 0.1 * self.scale_discount
+                x_r = (i + 1) * 0.1 * self.scale_discount
+                y_l = j * 0.1 * self.scale_discount
+                y_r = (j + 1) * 0.1 * self.scale_discount
                 x_l = ("%.2f" % x_l)
                 x_r = ("%.2f" % x_r)
                 y_l = ("%.2f" % y_l)
@@ -121,12 +126,14 @@ class tools():
 
 
     # PEST
-    def inverse(self,path_folder_pest, file_pst):
+    def inverse(self,path_folder_pest, path_inversion, file_pst):
         """run inversion given bash of forward model"""
-        os.system('export PATH=$PATH:' + path_folder_pest+'\n'+'pest '+file_pst+'\n')
+        os.system('cd '+path_inversion+'\n'+'export PATH=$PATH:' + path_folder_pest+'\n'+'pest '+file_pst+'\n')
 
     def make_in_tpl_pest(self, tpl_file, mode='permittivity'):
         """make the tpl file for permittivity/conductivity inversion"""
+        x_scale = int(self.len_x/self.scale_discount)
+        y_scale = int(self.len_y / self.scale_discount)
         f = open(tpl_file, "w")
         in_tpl_headlines = ["ptf #\n"]
         if mode == 'permittivity':
@@ -135,8 +142,8 @@ class tools():
             para = "c"
         else:
             sys.exit("input of function is wrong!")
-        for i in range(self.len_x):
-            for j in range(self.len_y):
+        for i in range(x_scale):
+            for j in range(y_scale):
                 name_para = para + str(i) + "_" + str(j)
                 in_tpl_headlines.append("# " + name_para + "        #\n")
         f.writelines(in_tpl_headlines)
@@ -144,11 +151,13 @@ class tools():
 
     def make_in_pest(self, in_data_file, inital_value=5.5):
         """in.data store the value of parameter to estimate"""
+        x_scale = int(self.len_x/self.scale_discount)
+        y_scale = int(self.len_y / self.scale_discount)
         f = open(in_data_file, "w")
         in_data_headlines = []
         inital_value = ("%e" % inital_value)
-        for i in range(self.len_x):
-            for j in range(self.len_y):
+        for i in range(x_scale):
+            for j in range(y_scale):
                 in_data_headlines.append(str(inital_value) + "\n")
         f.writelines(in_data_headlines)
         f.close()
@@ -203,7 +212,7 @@ class tools():
         f.writelines(out_ins_lines)
         f.close()  # to change file access modes
 
-    def make_pst_pest(self, pst_file, mode='permittivity', initial_para_value=np.zeros((80,80)) + 5.5):
+    def make_pst_pest(self, pst_file, mode='permittivity', initial_value=5.5):
         """make the .pst control file for PEST permittivity/conductivity inversion
 
         input:
@@ -213,6 +222,9 @@ class tools():
 
         output:
         .pst file"""
+        x_scale = int(self.len_x/self.scale_discount)
+        y_scale = int(self.len_y / self.scale_discount)
+        initial_para_value = np.zeros((x_scale, y_scale)) + initial_value
         f = open(pst_file, "w")
         if mode == 'permittivity':
             para = "p"
@@ -221,15 +233,15 @@ class tools():
         else:
             sys.exit("input of function is wrong!")
         ctrl_data_lines = ["pcf\n", "* control data\n", "restart  estimation\n",
-                           "    6400    71825     6400     0     1\n",
+                           "    "+str(int(x_scale * y_scale))+"    71825     "+str(int(x_scale * y_scale))+"     0     1\n",
                            "    1     1 single point   1   0   0\n", "  5.0   2.0   0.3  0.03    10\n",
                            "  3.0   3.0 0.001\n", "  0.1\n   3  0.01     3     3  0.01     3\n", "    0     0     0\n"]
         # parameter groups
         # initial parameter data
         para_lines = ["* parameter groups\n"]
         para_data_lines = ["* parameter data\n"]
-        for i in range(self.len_x):
-            for j in range(self.len_y):
+        for i in range(x_scale):
+            for j in range(y_scale):
                 name_para = para + str(i) + "_" + str(j)
                 para_lines.append(name_para + "           relative 0.01  0.0  switch  2.0 parabolic\n")
                 para_data_lines.append(

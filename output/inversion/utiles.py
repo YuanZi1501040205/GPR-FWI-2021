@@ -4,7 +4,7 @@ import sys
 import h5py
 
 class tools():
-    def __init__(self, num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80):
+    def __init__(self, num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80, scale_discount=5):
         self.num_shot = num_shot
         self.num_receiver = num_receiver
         self.length_sig = length_sig
@@ -14,6 +14,7 @@ class tools():
         self.curr_obs = np.zeros((num_shot, num_receiver, length_sig))
         self.num_obs = num_shot * num_receiver * length_sig
         self.num_para = len_x * len_y
+        self.scale_discount = scale_discount
 
     #gprMax
     def forward(self, path_input="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt",
@@ -25,34 +26,36 @@ class tools():
             os.system(#'eval "$(conda shell.bash hook)"\n'
                       # + 'conda deactivate\n'
                       # + 'conda activate gprMax\n'
-                      'cd ' + path_gprMax + '\n'
+                        'export PATH=$PATH:/usr/local/cuda-11.1/bin\n'
+                      + 'cd ' + path_gprMax + '\n'
                       + 'python -m gprMax ' + file + ' -gpu 0\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
 
 
-    def make_in_gprMax(self, path_output, file_para_p='./in_p.dat', file_para_c='./in_c.dat'):
+    def make_in_gprMax(self, path_output, file_para_p='./in_p.dat', file_para_c='./in_c.dat', ):
         """generate txt files for forward based on the current estimated parameters of geo-model
         file_para_p/file_para_c is in.dat file which is PEST's output after inversion and input for gprMax for forward
         path_output point to the folder store these gprMax instruction txt files
         geo model is len_x*len_y matrix, each pixel has two parameters(permitivity(i,j) and conductivity(i,j))"""
-
+        x_scale = int(self.len_x/self.scale_discount)
+        y_scale = int(self.len_y / self.scale_discount)
         f1 = open(file_para_p, 'r')
         f1_Lines = f1.readlines()
-        permittivity = np.array([float(i) for i in f1_Lines]).reshape(self.len_x, self.len_y)
+        permittivity = np.array([float(i) for i in f1_Lines]).reshape(x_scale, y_scale)
 
         f2 = open(file_para_c, 'r')
         f2_Lines = f2.readlines()
-        conductivity = np.array([float(i) for i in f2_Lines]).reshape(self.len_x, self.len_y)
+        conductivity = np.array([float(i) for i in f2_Lines]).reshape(x_scale, y_scale)
 
         material_lines=[]
         geo_model_lines=[]
-        for i in range(self.len_x):
-            for j in range(self.len_y):
-                x_l = i * 0.1
-                x_r = (i + 1) * 0.1
-                y_l = j * 0.1
-                y_r = (j + 1) * 0.1
+        for i in range(x_scale):
+            for j in range(y_scale):
+                x_l = i * 0.1 * self.scale_discount
+                x_r = (i + 1) * 0.1 * self.scale_discount
+                y_l = j * 0.1 * self.scale_discount
+                y_r = (j + 1) * 0.1 * self.scale_discount
                 x_l = ("%.2f" % x_l)
                 x_r = ("%.2f" % x_r)
                 y_l = ("%.2f" % y_l)
