@@ -28,10 +28,50 @@ class tools():
                       # + 'conda activate gprMax\n'
                         'export PATH=$PATH:/usr/local/cuda-11.1/bin\n'
                       + 'cd ' + path_gprMax + '\n'
-                      + 'python -m gprMax ' + file + ' -gpu 0\n'
+                      + 'python -m gprMax ' + file + '\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
-    def make_in_gprMax_gt(self,path_input ="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt" ):
+    # def make_in_gprMax_gt(self,path_input ="/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt" ):
+    #     """generate txt files for forward based on the ground truth geo-model"""
+    #     folder_path = path_input
+    #     for i in range(self.num_shot):
+    #         path_file = folder_path + '/cross_well_cylinder_B_scan_shot_' + str(i) + '.in'
+    #         file = open(path_file, "w")
+    #         # input current parameter=>forward=> current observation
+    #         head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
+    #                       "#domain: 8.0 8.0 0.1\n",
+    #                       "#dx_dy_dz: 0.1 0.1 0.1\n",
+    #                       "#time_window: 3e-07\n\n"
+    #                       ]
+    #         offset = 0.5
+    #         shot_start = 1.0
+    #         shot_index = i * offset + shot_start
+    #         shot_receiver_line = ["#waveform: ricker 1.0 10000000.0 mysource\n",
+    #                               "#hertzian_dipole: z 1.0 " + str(shot_index) + " 0.0 mysource\n",
+    #                               "#rx_array: 7.0 1.0 0.0 7.0 7.0 0.0 0.0 0.5 0.0\n\n"]
+    #
+    #         # build geo model
+    #         material_lines = ["#material: 5.5 0.0028 1.0 0.0 mid\n",
+    #                           "#material: 5.0 0.001 1.0 0.0 top\n",
+    #                           "#material: 6.5 0.008 1.0 0.0 pipe\n",
+    #                           "#material: 5.0 0.001 1.0 0.0 bg\n\n"]
+    #
+    #         geo_model_lines = ["#box: 0.0 0.0 0.0 8.0 8.0 0.1 top\n",
+    #                            "#cylindrical_sector: z 0.0 18.0 0.0 0.1 16.0 270.0 90.0 mid\n",
+    #                            "#box: 0.0 6.0 0.0 8.0 8.0 0.1 top\n",
+    #                            "#cylinder: 3.0 4.0 0.0 3.0 4.0 0.1 1 pipe\n",
+    #                            "#cylinder: 5.0 4.0 0.0 5.0 4.0 0.1 1 pipe\n",
+    #                            "#geometry_view: 0.0 0.0 0.0 8.0 8.0 0.1 0.1 0.1 0.1 cross_well_half_space n\n"]
+    #
+    #         file.writelines(head_lines)
+    #         file.writelines(shot_receiver_line)
+    #         file.writelines(material_lines)
+    #         file.writelines(geo_model_lines)
+    #         file.close()
+
+    #
+
+    def make_in_gprMax_gt(self,path_input = "/home/yzi/research/GPR-FWI-2021/forward/forward_input_gt" ):
         """generate txt files for forward based on the ground truth geo-model"""
         folder_path = path_input
         for i in range(self.num_shot):
@@ -39,28 +79,27 @@ class tools():
             file = open(path_file, "w")
             # input current parameter=>forward=> current observation
             head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
-                          "#domain: 8.0 8.0 0.1\n",
+                          "#domain: 3.0 3.0 0.1\n",
                           "#dx_dy_dz: 0.1 0.1 0.1\n",
-                          "#time_window: 10e-08\n\n"
+                          "#time_window: 1e-07\n\n"
                           ]
             offset = 0.5
-            shot_start = 1.0
+            shot_start = 0.5
             shot_index = i * offset + shot_start
-            shot_receiver_line = ["#waveform: ricker 1.0 100000000.0 mysource\n",
-                                  "#hertzian_dipole: z 1.0 " + str(shot_index) + " 0.0 mysource\n",
-                                  "#rx_array: 7.0 1.0 0.0 7.0 7.0 0.0 0.0 0.5 0.0\n\n"]
-            # build geo model
-            material_lines = ["#material: 5.5 0.0028 1.0 0.0 mid\n",
-                              "#material: 5.0 0.001 1.0 0.0 top\n",
-                              "#material: 6.5 0.008 1.0 0.0 pipe\n",
-                              "#material: 5.0 0.001 1.0 0.0 bg\n\n"]
+            shot_receiver_line = ["#waveform: ricker 1.0 5e7 mysource\n",
+                                  "#hertzian_dipole: z 0.5 " + str(shot_index) + " 0.0 mysource\n",
+                                  "#rx_array: 2.5 0.5 0.0 2.5 2.5 0.0 0.0 0.5 0.0\n\n"]
 
-            geo_model_lines = ["#box: 0.0 0.0 0.0 8.0 8.0 0.1 top\n",
-                               "#cylindrical_sector: z 0.0 18.0 0.0 0.1 16.0 270.0 90.0 mid\n",
-                               "#box: 0.0 6.0 0.0 8.0 8.0 0.1 top\n",
-                               "#cylinder: 3.0 4.0 0.0 3.0 4.0 0.1 0.5 pipe\n",
-                               "#cylinder: 5.0 4.0 0.0 5.0 4.0 0.1 0.5 pipe\n",
-                               "#geometry_view: 0.0 0.0 0.0 8.0 8.0 0.1 0.1 0.1 0.1 cross_well_half_space n\n"]
+            # build geo model
+            material_lines = ["#material: 5.5 0.0028 1.0 0.0 mid\n"
+                              "#material: 5.0 0.001 1.0 0.0 top\n",
+                              "#material: 6.5 0.008 1.0 0.0 pipe\n"
+                             ]
+
+            geo_model_lines = ["#box: 0.0 2.4 0.0 3.0 3.0 0.1 top\n",
+                               "#box: 0.0 0.0 0.0 3.0 2.4 0.1 mid\n",
+                               "#cylinder: 1.5 1.5 0.0 1.5 1.5 0.1 0.5 pipe\n",
+                               "#geometry_view: 0.0 0.0 0.0 3.0 3.0 0.1 0.1 0.1 0.1 cross_well_half_space n\n"]
 
             file.writelines(head_lines)
             file.writelines(shot_receiver_line)
@@ -107,16 +146,16 @@ class tools():
             file = open(path_file, "w")
             # input current parameter=>forward=> current observation
             head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
-                          "#domain: 8.0 8.0 0.1\n",
+                          "#domain: 3.0 3.0 0.1\n",
                           "#dx_dy_dz: 0.1 0.1 0.1\n",
-                          "#time_window: 10e-08\n\n"
+                          "#time_window: 1e-07\n\n"
                           ]
             offset = 0.5
-            shot_start = 1.0
+            shot_start = 0.5
             shot_index = _ * offset + shot_start
-            shot_receiver_line = ["#waveform: ricker 1.0 100000000.0 mysource\n",
-                                  "#hertzian_dipole: z 1.0 " + str(shot_index) + " 0.0 mysource\n",
-                                  "#rx_array: 7.0 1.0 0.0 7.0 7.0 0.0 0.0 0.5 0.0\n\n"]
+            shot_receiver_line = ["#waveform: ricker 1.0 5e7 mysource\n",
+                                  "#hertzian_dipole: z 0.5 " + str(shot_index) + " 0.0 mysource\n",
+                                  "#rx_array: 2.5 0.5 0.0 2.5 2.5 0.0 0.0 0.5 0.0\n\n"]
 
             file.writelines(head_lines)
             file.writelines(shot_receiver_line)
@@ -233,7 +272,8 @@ class tools():
         else:
             sys.exit("input of function is wrong!")
         ctrl_data_lines = ["pcf\n", "* control data\n", "restart  estimation\n",
-                           "    "+str(int(x_scale * y_scale))+"    71825     "+str(int(x_scale * y_scale))+"     0     1\n",
+                           "    "+str(int(x_scale * y_scale))+"    "+str(self.num_shot * self.num_shot *self.length_sig)
+                           +"     "+str(int(x_scale * y_scale))+"     0     1\n",
                            "    1     1 single point   1   0   0\n", "  5.0   2.0   0.3  0.03    10\n",
                            "  3.0   3.0 0.001\n", "  0.1\n   3  0.01     3     3  0.01     3\n", "    0     0     0\n"]
         # parameter groups

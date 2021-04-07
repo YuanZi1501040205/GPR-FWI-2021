@@ -6,13 +6,12 @@ __version__ = "1.0.0"
 from utiles import tools
 
 def main():
-    agent = tools(num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80)
-    agent = tools(num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80)
+    agent = tools(num_shot=5, num_receiver=5, length_sig=425, len_x=30, len_y=30, scale_discount=3)
     agent.make_in_gprMax(path_output="/homelocal/GPR-FWI-2021/output/forward/forward_input",
                          file_para_p='/homelocal/GPR-FWI-2021/output/inversion/in_p.dat',
                          file_para_c='/homelocal/GPR-FWI-2021/output/inversion/in_c.dat')
 
-    agent.forward(path_input="//homelocal/GPR-FWI-2021/output/forward/forward_input",
+    agent.forward(path_input="/homelocal/GPR-FWI-2021/output/forward/forward_input",
                 path_gprMax="/homelocal/gprMax",
                 path_output="/homelocal/GPR-FWI-2021/output/forward/forward_output")
 

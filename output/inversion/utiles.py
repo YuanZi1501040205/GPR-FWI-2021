@@ -28,7 +28,7 @@ class tools():
                       # + 'conda activate gprMax\n'
                         'export PATH=$PATH:/usr/local/cuda-11.1/bin\n'
                       + 'cd ' + path_gprMax + '\n'
-                      + 'python -m gprMax ' + file + ' -gpu 0\n'
+                      + 'python -m gprMax ' + file + '\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
 
@@ -71,16 +71,16 @@ class tools():
             file = open(path_file, "w")
             # input current parameter=>forward=> current observation
             head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
-                          "#domain: 8.0 8.0 0.1\n",
+                          "#domain: 3.0 3.0 0.1\n",
                           "#dx_dy_dz: 0.1 0.1 0.1\n",
-                          "#time_window: 10e-08\n\n"
+                          "#time_window: 1e-07\n\n"
                           ]
             offset = 0.5
-            shot_start = 1.0
+            shot_start = 0.5
             shot_index = _ * offset + shot_start
-            shot_receiver_line = ["#waveform: ricker 1.0 100000000.0 mysource\n",
-                                  "#hertzian_dipole: z 1.0 " + str(shot_index) + " 0.0 mysource\n",
-                                  "#rx_array: 7.0 1.0 0.0 7.0 7.0 0.0 0.0 0.5 0.0\n\n"]
+            shot_receiver_line = ["#waveform: ricker 1.0 5e7 mysource\n",
+                                  "#hertzian_dipole: z 0.5 " + str(shot_index) + " 0.0 mysource\n",
+                                  "#rx_array: 2.5 0.5 0.0 2.5 2.5 0.0 0.0 0.5 0.0\n\n"]
 
             file.writelines(head_lines)
             file.writelines(shot_receiver_line)
