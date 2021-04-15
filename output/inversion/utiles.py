@@ -4,7 +4,7 @@ import sys
 import h5py
 
 class tools():
-    def __init__(self, num_shot=13, num_receiver=13, length_sig=425, len_x=80, len_y=80, scale_discount=5):
+    def __init__(self, num_shot=7, num_receiver=7, length_sig=425, len_x=80, len_y=80, scale_discount=1):
         self.num_shot = num_shot
         self.num_receiver = num_receiver
         self.length_sig = length_sig
@@ -27,8 +27,9 @@ class tools():
                       # + 'conda deactivate\n'
                       # + 'conda activate gprMax\n'
                         'export PATH=$PATH:/usr/local/cuda-11.1/bin\n'
+                        +'export PATH=$PATH:/usr/local/cuda/bin/\n'
                       + 'cd ' + path_gprMax + '\n'
-                      + 'python -m gprMax ' + file + '\n'
+                      + 'python -m gprMax ' + file + ' -gpu 2\n'
                       + 'mv ' + file.split('.in')[0] + '.out ' + path_output)
 
 
@@ -38,7 +39,7 @@ class tools():
         file_para_p/file_para_c is in.dat file which is PEST's output after inversion and input for gprMax for forward
         path_output point to the folder store these gprMax instruction txt files
         geo model is len_x*len_y matrix, each pixel has two parameters(permitivity(i,j) and conductivity(i,j))"""
-        x_scale = int(self.len_x/self.scale_discount)
+        x_scale = int(self.len_x / self.scale_discount)
         y_scale = int(self.len_y / self.scale_discount)
         f1 = open(file_para_p, 'r')
         f1_Lines = f1.readlines()
@@ -52,17 +53,21 @@ class tools():
         geo_model_lines=[]
         for i in range(x_scale):
             for j in range(y_scale):
-                x_l = i * 0.1 * self.scale_discount
-                x_r = (i + 1) * 0.1 * self.scale_discount
-                y_l = j * 0.1 * self.scale_discount
-                y_r = (j + 1) * 0.1 * self.scale_discount
-                x_l = ("%.2f" % x_l)
-                x_r = ("%.2f" % x_r)
-                y_l = ("%.2f" % y_l)
-                y_r = ("%.2f" % y_r)
-                index_pix = "pix_"+str(i)+"_"+str(j)
-                material_lines.append("#material: "+str(permittivity[i][j])+" "+str(conductivity[i][j])+" 1.0 0.0 "+index_pix+"\n")
-                geo_model_lines.append("#box: "+x_l+" "+y_l+" 0.0 "+x_r+" "+y_r+" 0.1 "+index_pix+"\n")
+                if i < 3 or i >= 7 or j < 3 or j >= 7:
+                    material_lines.append("\n")
+                    geo_model_lines.append("\n")
+                else:
+                    x_l = i * 0.1 * self.scale_discount
+                    x_r = (i + 1) * 0.1 * self.scale_discount
+                    y_l = j * 0.1 * self.scale_discount
+                    y_r = (j + 1) * 0.1 * self.scale_discount
+                    x_l = ("%.2f" % x_l)
+                    x_r = ("%.2f" % x_r)
+                    y_l = ("%.2f" % y_l)
+                    y_r = ("%.2f" % y_r)
+                    index_pix = "pix_"+str(i)+"_"+str(j)
+                    material_lines.append("#material: "+str(permittivity[i][j])+" "+str(conductivity[i][j])+" 1.0 0.0 "+index_pix+"\n")
+                    geo_model_lines.append("#box: "+x_l+" "+y_l+" 0.0 "+x_r+" "+y_r+" 0.1 "+index_pix+"\n")
         material_lines[-1] = material_lines[-1]+"\n"
 
         folder_path = path_output
@@ -71,17 +76,17 @@ class tools():
             file = open(path_file, "w")
             # input current parameter=>forward=> current observation
             head_lines = ["#title: cross boreholes B-scan from two cylinders buried in ground\n",
-                          "#domain: 3.0 3.0 0.1\n",
+                          "#domain: 5.0 5.0 0.1\n",
                           "#dx_dy_dz: 0.1 0.1 0.1\n",
                           "#time_window: 1e-07\n\n"
                           ]
             offset = 0.5
-            shot_start = 0.5
+            shot_start = 1.5
             shot_index = _ * offset + shot_start
+            shot_index = ("%.1f" % shot_index)
             shot_receiver_line = ["#waveform: ricker 1.0 5e7 mysource\n",
-                                  "#hertzian_dipole: z 0.5 " + str(shot_index) + " 0.0 mysource\n",
-                                  "#rx_array: 2.5 0.5 0.0 2.5 2.5 0.0 0.0 0.5 0.0\n\n"]
-
+                                  "#hertzian_dipole: z 1.5 " + str(shot_index) + " 0.0 mysource\n",
+                                  "#rx_array: 3.5 1.5 0.0 3.5 3.5 0.0 0.0 0.5 0.0\n\n"]
             file.writelines(head_lines)
             file.writelines(shot_receiver_line)
             file.writelines(material_lines)
